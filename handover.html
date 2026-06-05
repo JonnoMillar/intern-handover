@@ -675,7 +675,7 @@
     <h1>Intern Handover &mdash; Jul 2026</h1>
   </div>
   <div class="header-meta">
-    <span>Jonno &amp; Harry &rarr; William &amp; Faidra</span>
+    <span id="header-names" title="Click to edit names" style="cursor:pointer; border-bottom: 1px dashed rgba(255,255,255,0.4);">Jonno &amp; Harry &rarr; William &amp; Faidra</span>
     <span class="progress-pill" id="global-progress">Loading…</span>
   </div>
 </header>
@@ -701,6 +701,39 @@
   <div class="board" id="board"></div>
 </div>
 </main>
+
+<!-- Setup Modal (first-time) -->
+<div class="modal-backdrop open" id="modal-setup">
+  <div class="modal">
+    <h2>Set up your Handover Tracker</h2>
+    <label>Outgoing interns (handing over)</label>
+    <input type="text" id="setup-from" placeholder="e.g. Jonno & Harry" value="">
+    <label>Incoming interns (receiving)</label>
+    <input type="text" id="setup-to" placeholder="e.g. William & Faidra" value="">
+    <label>Handover period</label>
+    <input type="text" id="setup-period" placeholder="e.g. Jul 2026" value="">
+    <div class="modal-actions">
+      <button class="btn-primary" id="setup-confirm">Let's go</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Names Modal -->
+<div class="modal-backdrop" id="modal-edit-names">
+  <div class="modal">
+    <h2>Edit Names</h2>
+    <label>Outgoing interns</label>
+    <input type="text" id="editnames-from" placeholder="e.g. Jonno & Harry">
+    <label>Incoming interns</label>
+    <input type="text" id="editnames-to" placeholder="e.g. William & Faidra">
+    <label>Handover period</label>
+    <input type="text" id="editnames-period" placeholder="e.g. Jul 2026">
+    <div class="modal-actions">
+      <button class="btn-secondary" id="editnames-cancel">Cancel</button>
+      <button class="btn-primary" id="editnames-confirm">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- Add Day Modal -->
 <div class="modal-backdrop" id="modal-add-day">
@@ -791,7 +824,17 @@ let boardState;
 
 function initState() {
   const saved = loadState();
-  if (saved && saved.cards && saved.days) { boardState = saved; return; }
+  if (saved && saved.cards && saved.days) {
+    boardState = saved;
+    // Hide setup modal if names already set
+    document.getElementById('modal-setup').classList.remove('open');
+    renderHeaderNames();
+    return;
+  }
+  // First visit — show setup modal, don't render board yet
+  document.getElementById('modal-setup').classList.add('open');
+  document.getElementById('setup-from').focus();
+
   const cards = {};
   const days = SEED_DAYS.map(day => {
     const cardIds = day.sessions.map(s => {
@@ -800,9 +843,63 @@ function initState() {
     });
     return { id: day.id, date: day.date, loc: day.loc, locClass: day.locClass, cardIds };
   });
-  boardState = { days, cards };
-  persist();
+  boardState = { days, cards, names: { from: '', to: '', period: '' } };
 }
+
+function renderHeaderNames() {
+  const n = boardState.names || {};
+  const from   = n.from   || 'Outgoing';
+  const to     = n.to     || 'Incoming';
+  const period = n.period || 'Jul 2026';
+  document.getElementById('header-names').textContent = from + ' → ' + to;
+  document.querySelector('header h1').textContent = 'Intern Handover — ' + period;
+}
+
+// Setup modal
+document.getElementById('setup-confirm').addEventListener('click', () => {
+  const from   = document.getElementById('setup-from').value.trim() || 'Outgoing';
+  const to     = document.getElementById('setup-to').value.trim()   || 'Incoming';
+  const period = document.getElementById('setup-period').value.trim() || 'Jul 2026';
+  boardState.names = { from, to, period };
+  persist();
+  renderHeaderNames();
+  document.getElementById('modal-setup').classList.remove('open');
+  render();
+});
+document.getElementById('setup-from').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('setup-to').focus();
+});
+document.getElementById('setup-to').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('setup-period').focus();
+});
+document.getElementById('setup-period').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('setup-confirm').click();
+});
+
+// Edit names modal (click header names)
+document.getElementById('header-names').addEventListener('click', () => {
+  const n = boardState.names || {};
+  document.getElementById('editnames-from').value   = n.from   || '';
+  document.getElementById('editnames-to').value     = n.to     || '';
+  document.getElementById('editnames-period').value = n.period || '';
+  document.getElementById('modal-edit-names').classList.add('open');
+  document.getElementById('editnames-from').focus();
+});
+document.getElementById('editnames-cancel').addEventListener('click', () => {
+  document.getElementById('modal-edit-names').classList.remove('open');
+});
+document.getElementById('editnames-confirm').addEventListener('click', () => {
+  const from   = document.getElementById('editnames-from').value.trim()   || 'Outgoing';
+  const to     = document.getElementById('editnames-to').value.trim()     || 'Incoming';
+  const period = document.getElementById('editnames-period').value.trim() || 'Jul 2026';
+  boardState.names = { from, to, period };
+  persist();
+  renderHeaderNames();
+  document.getElementById('modal-edit-names').classList.remove('open');
+});
+document.getElementById('modal-edit-names').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 let uidCounter = Date.now();
@@ -1396,7 +1493,10 @@ function getDragAfterElement(zone, y) {
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 initState();
-render();
+// Only render immediately if setup already completed (returning visitor)
+if (boardState.names && (boardState.names.from || boardState.names.to)) {
+  render();
+}
 </script>
 </body>
 </html>
