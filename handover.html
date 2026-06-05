@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Handover — Jul 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #00195A;
+    --navy-md:     #002A7A;
+    --navy-lt:     #E8ECFF;
+    --office:      #1D4ED8;
+    --office-lt:   #DBEAFE;
+    --wfh:         #16A34A;
+    --wfh-lt:      #DCFCE7;
+    --scalpel:     #B45309;
+    --scalpel-lt:  #FEF3C7;
+    --done:        #15803D;
+    --done-lt:     #DCFCE7;
+    --prog:        #B45309;
+    --prog-lt:     #FEF3C7;
+    --ns:          #4B5563;
+    --ns-lt:       #F3F4F6;
+    --bg:          #F4F6FB;
+    --card:        #FFFFFF;
+    --border:      #E2E6F0;
+    --text:        #0F1A3E;
+    --muted:       #475569;
+    --danger:      #DC2626;
+    --danger-lt:   #FEE2E2;
+    --radius:      8px;
+    --shadow:      0 1px 3px rgba(0,25,90,0.08), 0 1px 2px rgba(0,25,90,0.05);
+    --shadow-hover:0 4px 12px rgba(0,25,90,0.14);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .sap-logo {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    padding: 3px 10px;
+    border-radius: 5px;
+  }
+  header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+  }
+  .header-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .progress-pill {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* ── Legend bar ── */
+  .legend {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 28px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-label { font-weight: 600; color: var(--text); margin-right: 2px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .chip-office  { background: var(--office-lt);  color: var(--office);  }
+  .chip-wfh     { background: var(--wfh-lt);     color: var(--wfh);     }
+  .chip-scalpel { background: var(--scalpel-lt); color: var(--scalpel); }
+  .chip-done    { background: var(--done-lt);    color: var(--done);    }
+  .chip-prog    { background: var(--prog-lt);    color: var(--prog);    }
+  .chip-ns      { background: var(--ns-lt);      color: var(--ns);      }
+  .legend-hint  { margin-left: auto; font-style: italic; font-size: 11px; }
+
+  /* ── Board ── */
+  .board-wrap { padding: 20px 28px 60px; overflow-x: auto; }
+  .board {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    min-width: max-content;
+  }
+
+  /* ── Column ── */
+  .col {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .col-header {
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+  }
+  .col-header.office  { background: var(--office); }
+  .col-header.wfh     { background: var(--wfh); }
+  .col-header.scalpel { background: var(--scalpel); }
+  .col-header.unset   { background: var(--navy); }
+
+  /* ── Today highlight ── */
+  .col.today .col-header {
+    box-shadow: 0 0 0 3px #F59E0B, 0 0 16px 2px rgba(245,158,11,0.35);
+  }
+  .col.today .col-header::after {
+    content: 'TODAY';
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    background: #F59E0B;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+
+  /* ── Complete-all button ── */
+  .btn-complete-all {
+    width: 100%;
+    padding: 6px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--done-lt);
+    color: var(--done);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background 150ms, color 150ms;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .col:hover .btn-complete-all,
+  .col.today .btn-complete-all {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .btn-complete-all:hover { background: var(--done); color: #fff; }
+  .col-date {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .col-date:hover .edit-icon { opacity: 1; }
+  .col-loc {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.85;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+  .col-loc:hover { opacity: 1; text-decoration: underline; }
+  .col-count { font-size: 10px; opacity: 0.7; margin-top: 4px; }
+  .edit-icon {
+    opacity: 0;
+    transition: opacity 150ms;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  /* inline text editor */
+  .inline-input {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 2px 6px;
+    width: 100%;
+    outline: none;
+  }
+  .inline-input::placeholder { color: rgba(255,255,255,0.6); }
+
+  /* loc selector */
+  .loc-select {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 4px;
+    outline: none;
+    cursor: pointer;
+    margin-top: 2px;
+  }
+  .loc-select option { color: var(--text); background: #fff; }
+
+  /* ── Drop zone ── */
+  .drop-zone {
+    min-height: 48px;
+    border-radius: var(--radius);
+    border: 2px dashed transparent;
+    transition: border-color 150ms ease, background 150ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .drop-zone.drag-over {
+    border-color: var(--navy-md);
+    background: var(--navy-lt);
+    padding: 6px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px 10px 16px;
+    cursor: grab;
+    user-select: none;
+    box-shadow: var(--shadow);
+    transition: box-shadow 150ms ease, transform 150ms ease, border-color 150ms ease;
+    position: relative;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); border-color: #C7D2E8; transform: translateY(-1px); }
+  .card:hover .card-actions { opacity: 1; }
+  .card.dragging { opacity: 0.45; transform: scale(0.97); }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 150ms;
+  }
+  .card.done-card::before { background: var(--done); }
+  .card.prog-card::before { background: var(--prog); }
+  .card.done-card .card-title {
+    text-decoration: line-through;
+    color: var(--muted);
+    opacity: 0.7;
+    transition: text-decoration 200ms, opacity 200ms;
+  }
+
+  /* ── Card pop-in ── */
+  @keyframes card-pop {
+    from { opacity: 0; transform: scale(0.92) translateY(6px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+  }
+  .card { animation: card-pop 180ms ease both; }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+
+  /* ── Confetti canvas ── */
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* card actions (delete) */
+  .card-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 150ms;
+    z-index: 5;
+  }
+  .btn-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 150ms;
+    padding: 0;
+  }
+  .btn-delete { background: var(--danger-lt); color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  /* title row */
+  .card-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding-right: 30px;
+  }
+  .card-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+    cursor: text;
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin: -1px -3px;
+    transition: background 150ms;
+    word-break: break-word;
+  }
+  .card-title:hover { background: var(--navy-lt); }
+
+  /* status badge */
+  .status-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 150ms, color 150ms;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .status-badge.done { background: var(--done-lt); color: var(--done); }
+  .status-badge.prog { background: var(--prog-lt); color: var(--prog); }
+  .status-badge.ns   { background: var(--ns-lt);   color: var(--ns);   }
+
+  /* notes */
+  .card-notes {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    cursor: text;
+    border-radius: 3px;
+    padding: 3px 5px;
+    border: 1px dashed transparent;
+    transition: border-color 150ms, background 150ms;
+    min-height: 22px;
+    word-break: break-word;
+  }
+  .card-notes:empty::before { content: 'Add a note…'; opacity: 0.45; }
+  .card-notes:hover { border-color: var(--border); background: #FAFBFF; }
+
+  /* sub-items */
+  .card-subs-section { margin-top: 6px; }
+  .card-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 150ms;
+  }
+  .card-toggle:hover { color: var(--navy); }
+  .toggle-arrow {
+    width: 12px; height: 12px;
+    transition: transform 150ms ease;
+    flex-shrink: 0;
+  }
+  .card-subitems {
+    display: none;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid var(--border);
+  }
+  .card-subitems.open { display: block; }
+  .subitem-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 3px;
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+  }
+  .subitem-text {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    flex: 1;
+    cursor: text;
+    border-radius: 2px;
+    padding: 1px 3px;
+    word-break: break-word;
+  }
+  .subitem-text:hover { background: var(--navy-lt); }
+  .btn-sub-delete {
+    opacity: 0;
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    border: none;
+    background: transparent;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 150ms, opacity 150ms;
+  }
+  .subitem-row:hover .btn-sub-delete { opacity: 1; }
+  .btn-sub-delete:hover { background: var(--danger-lt); }
+  .add-subitem-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    padding-left: 8px;
+  }
+  .add-subitem-input {
+    flex: 1;
+    font-size: 11px;
+    font-family: 'Open Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 6px;
+    outline: none;
+    color: var(--text);
+    transition: border-color 150ms;
+  }
+  .add-subitem-input:focus { border-color: var(--navy-md); }
+  .btn-sub-add {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+    background: var(--navy-lt);
+    color: var(--navy);
+    cursor: pointer;
+    transition: background 150ms;
+    white-space: nowrap;
+  }
+  .btn-sub-add:hover { background: var(--navy-md); color: #fff; }
+
+  /* ── Add card button ── */
+  .btn-add-card {
+    width: 100%;
+    padding: 7px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Open Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 150ms, color 150ms, background 150ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-add-card:hover { border-color: var(--navy-md); color: var(--navy); background: var(--navy-lt); }
+
+  /* ── Add day button ── */
+  .col-add-day {
+    width: 230px;
+    flex-shrink: 0;
+  }
+  .btn-add-day {
+    width: 100%;
+    height: 60px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 150ms, color 150ms, background 150ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-add-day:hover { border-color: var(--navy-md); color: var(--navy); background: var(--navy-lt); }
+
+  /* ── Inline text edit (contenteditable) ── */
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px var(--navy-md);
+    background: var(--navy-lt);
+    cursor: text;
+  }
+
+  /* ── Week divider ── */
+  .week-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+    width: 28px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .week-divider-line {
+    width: 2px;
+    flex: 1;
+    min-height: 120px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  .week-divider-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--border);
+    margin-top: 8px;
+    white-space: nowrap;
+  }
+
+  /* ── Past day ── */
+  .col.past .col-header {
+    opacity: 0.45;
+    filter: grayscale(0.4);
+  }
+  .col.past .drop-zone {
+    opacity: 0.5;
+  }
+  .col.past .btn-add-card {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .col.past-today .col-header {
+    opacity: 0.72;
+    filter: grayscale(0.15);
+  }
+  .col.past-today .drop-zone {
+    opacity: 0.75;
+  }
+
+  /* drag ghost */
+  .drag-ghost {
+    background: var(--navy-lt);
+    border: 2px dashed var(--navy-md);
+    border-radius: var(--radius);
+    height: 54px;
+    position: fixed;
+    top: -200px;
+    left: -200px;
+    width: 200px;
+  }
+
+  /* ── Modal ── */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px 28px;
+    width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .modal h2 { font-family: 'Poppins', sans-serif; font-size: 15px; margin-bottom: 16px; }
+  .modal label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+  .modal input, .modal select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 150ms;
+  }
+  .modal input:focus, .modal select:focus { border-color: var(--navy-md); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-primary {
+    padding: 7px 18px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms;
+  }
+  .btn-primary:hover { background: var(--navy-md); }
+  .btn-secondary {
+    padding: 7px 14px;
+    background: var(--ns-lt);
+    color: var(--muted);
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 150ms;
+  }
+  .btn-secondary:hover { background: var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <span class="sap-logo">SAP</span>
+    <h1>Intern Handover &mdash; Jul 2026</h1>
+  </div>
+  <div class="header-meta">
+    <span>Jonno &amp; Harry &rarr; William &amp; Faidra</span>
+    <span class="progress-pill" id="global-progress">Loading…</span>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="legend-label">Location:</span>
+    <span class="chip chip-office">Office</span>
+    <span class="chip chip-wfh">WFH</span>
+    <span class="chip chip-scalpel">The Scalpel</span>
+  </div>
+  <div class="legend-group">
+    <span class="legend-label">Status:</span>
+    <span class="chip chip-ns">Not Started</span>
+    <span class="chip chip-prog">In Progress</span>
+    <span class="chip chip-done">Done</span>
+  </div>
+  <span class="legend-hint">Click badge to cycle status &nbsp;&bull;&nbsp; Double-click text to edit &nbsp;&bull;&nbsp; Drag cards between days</span>
+</div>
+
+<main>
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+</main>
+
+<!-- Add Day Modal -->
+<div class="modal-backdrop" id="modal-add-day">
+  <div class="modal">
+    <h2>Add a Day</h2>
+    <label>Date label</label>
+    <input type="text" id="modal-date-input" placeholder="e.g. Fri 25 Jul">
+    <label>Location</label>
+    <select id="modal-loc-select">
+      <option value="Office">Office</option>
+      <option value="WFH">WFH</option>
+      <option value="The Scalpel">The Scalpel</option>
+      <option value="">TBC</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn-primary" id="modal-confirm">Add Day</button>
+    </div>
+  </div>
+</div>
+
+<div class="drag-ghost" id="drag-ghost"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+// ── Seed data ────────────────────────────────────────────────────────────────
+const SEED_DAYS = [
+  { id:'w8',  date:'Wed 8 Jul',  loc:'Office',      locClass:'office',  sessions:[
+    { id:'s1', title:'Meeting 1: General Understand Handover', subs:['What our team do','Hierarchy breakdown — team, roles, industry matrix','Our responsibilities overview','Systems intro (not overwhelming)'], notes:'' },
+    { id:'s2', title:'Intro to Office & Overview', subs:[], notes:'' },
+  ]},
+  { id:'t9',  date:'Thu 9 Jul',  loc:'Office',      locClass:'office',  sessions:[
+    { id:'s3', title:'M1 continued', subs:[], notes:'' },
+    { id:'s4', title:'Meeting 2/3: Getting Setup & Integrated', subs:['Getting Access — Power BI, UKI, Renewals, 5 MU, QCC Folder','Outlook Setup — rules, signatures, folders, commercial inbox','Adding to Commercial Team + SharePoint + DLs + WhatsApp','Import Bookmarks','Power BI Linearity Report'], notes:'' },
+  ]},
+  { id:'f10', date:'Fri 10 Jul', loc:'WFH',         locClass:'wfh',     sessions:[
+    { id:'s5', title:'Intro Calls', subs:['Rob','Maike','Vero','Jaro'], notes:'' },
+  ]},
+  { id:'m13', date:'Mon 13 Jul', loc:'WFH',         locClass:'wfh',     sessions:[
+    { id:'s6', title:'FLSM Intros', subs:[], notes:'' },
+  ]},
+  { id:'t14', date:'Tue 14 Jul', loc:'Office',      locClass:'office',  sessions:[
+    { id:'s7', title:'CMS Overview', subs:['Walkthrough of each section','Sending documents to DocuSign','Uploading documents','Sending for bookings','Creating CMS case — refer to notes'], notes:'' },
+    { id:'s8', title:'DocuSign Overview', subs:['Full masterclass','Shared inbox setup','Each feature walkthrough'], notes:'' },
+    { id:'s9', title:'Renewals Forecast', subs:[], notes:'' },
+  ]},
+  { id:'w15', date:'Wed 15 Jul', loc:'Office',      locClass:'office',  sessions:[
+    { id:'s10', title:'DCD', subs:[], notes:'' },
+    { id:'s11', title:'One360', subs:[], notes:'' },
+    { id:'s12', title:'Material Mapping', subs:[], notes:'' },
+    { id:'s13', title:'ISP', subs:[], notes:'' },
+    { id:'s14', title:'PDF X-Change', subs:[], notes:'' },
+    { id:'s15', title:'5 MU Forecast Intro', subs:[], notes:'' },
+  ]},
+  { id:'t16', date:'Thu 16 Jul — Summer Party', loc:'Office', locClass:'office', sessions:[
+    { id:'s16', title:'Intro to UKI Weekly Forecast', subs:[], notes:'' },
+    { id:'s17', title:'Pricing App & Price Lists SharePoint', subs:[], notes:'' },
+  ]},
+  { id:'f17', date:'Fri 17 Jul', loc:'WFH',         locClass:'wfh',     sessions:[
+    { id:'s18', title:'Quiz', subs:[], notes:'' },
+  ]},
+  { id:'m20', date:'Mon 20 Jul', loc:'WFH',         locClass:'wfh',     sessions:[
+    { id:'s19', title:'Go Through Quiz', subs:[], notes:'' },
+  ]},
+  { id:'t21', date:'Tue 21 Jul', loc:'Office',      locClass:'office',  sessions:[
+    { id:'s20', title:'Weekly Digest', subs:[], notes:'' },
+    { id:'s21', title:'Book Club Responsibilities', subs:[], notes:'' },
+    { id:'s22', title:'QCC Responsibilities', subs:[], notes:'' },
+  ]},
+  { id:'w22', date:'Wed 22 Jul', loc:'Office',      locClass:'office',  sessions:[
+    { id:'s23', title:'SAT Tool', subs:[], notes:'' },
+    { id:'s24', title:'Speak to Shy — Harmony & Quotes call', subs:[], notes:'' },
+  ]},
+  { id:'t23', date:'Thu 23 Jul', loc:'',            locClass:'unset',   sessions:[]},
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'sap_handover_v2';
+
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; } }
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(boardState)); }
+
+// boardState = {
+//   days:  [{id, date, loc, locClass, cardIds}],
+//   cards: {id: {title, subs:[], notes, status, dayId}}
+// }
+let boardState;
+
+function initState() {
+  const saved = loadState();
+  if (saved && saved.cards && saved.days) { boardState = saved; return; }
+  const cards = {};
+  const days = SEED_DAYS.map(day => {
+    const cardIds = day.sessions.map(s => {
+      cards[s.id] = { title: s.title, subs: s.subs.slice(), notes: s.notes || '', status: 'ns', dayId: day.id };
+      return s.id;
+    });
+    return { id: day.id, date: day.date, loc: day.loc, locClass: day.locClass, cardIds };
+  });
+  boardState = { days, cards };
+  persist();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+let uidCounter = Date.now();
+function uid() { return 'c' + (uidCounter++); }
+function dayUid() { return 'd' + (uidCounter++); }
+
+const STATUS_CYCLE = { ns:'prog', prog:'done', done:'ns' };
+const STATUS_LABEL = { ns:'Not Started', prog:'In Progress', done:'Done' };
+const STATUS_CLASS = { ns:'ns', prog:'prog', done:'done' };
+
+const LOC_CLASS = { 'Office':'office', 'WFH':'wfh', 'The Scalpel':'scalpel', '':'unset' };
+
+function svgIcon(path, size=14) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">${path}</svg>`;
+}
+const ICON_PENCIL = svgIcon('<path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>');
+const ICON_TRASH  = svgIcon('<path d="M3 5h10M8 5V3M6 5v7M10 5v7M4 5l.5 8h7l.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>');
+const ICON_PLUS   = svgIcon('<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>');
+const ICON_ARROW  = svgIcon('<path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>');
+const ICON_CHECK  = svgIcon('<path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>');
+
+// ── Card builder ──────────────────────────────────────────────────────────────
+function buildCard(cardId) {
+  const c = boardState.cards[cardId];
+  const el = document.createElement('div');
+  el.className = 'card' + (c.status === 'done' ? ' done-card' : c.status === 'prog' ? ' prog-card' : '');
+  el.setAttribute('draggable', 'true');
+  el.dataset.cardId = cardId;
+
+  // actions (delete)
+  const actions = document.createElement('div');
+  actions.className = 'card-actions';
+  const btnDel = document.createElement('button');
+  btnDel.className = 'btn-icon btn-delete';
+  btnDel.innerHTML = ICON_TRASH;
+  btnDel.title = 'Delete card';
+  btnDel.addEventListener('click', e => { e.stopPropagation(); deleteCard(cardId); });
+  actions.appendChild(btnDel);
+  el.appendChild(actions);
+
+  // title row
+  const titleRow = document.createElement('div');
+  titleRow.className = 'card-title-row';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'card-title';
+  titleEl.textContent = c.title;
+  titleEl.title = 'Double-click to edit';
+
+  const badge = document.createElement('span');
+  badge.className = 'status-badge ' + STATUS_CLASS[c.status];
+  badge.textContent = STATUS_LABEL[c.status];
+  badge.addEventListener('click', e => {
+    e.stopPropagation();
+    c.status = STATUS_CYCLE[c.status];
+    persist();
+    el.className = 'card' + (c.status === 'done' ? ' done-card' : c.status === 'prog' ? ' prog-card' : '');
+    badge.className = 'status-badge ' + STATUS_CLASS[c.status];
+    badge.textContent = STATUS_LABEL[c.status];
+    updateProgress();
+  });
+
+  titleRow.appendChild(titleEl);
+  titleRow.appendChild(badge);
+  el.appendChild(titleRow);
+
+  // inline title edit on double-click
+  titleEl.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    el.setAttribute('draggable', 'false');
+    titleEl.contentEditable = 'true';
+    titleEl.focus();
+    const range = document.createRange();
+    range.selectNodeContents(titleEl);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+  titleEl.addEventListener('blur', () => {
+    titleEl.contentEditable = 'false';
+    el.setAttribute('draggable', 'true');
+    const val = titleEl.textContent.trim();
+    if (val) { c.title = val; } else { titleEl.textContent = c.title; }
+    persist();
+  });
+  titleEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); }
+    if (e.key === 'Escape') { titleEl.textContent = c.title; titleEl.blur(); }
+  });
+
+  // notes
+  const notes = document.createElement('div');
+  notes.className = 'card-notes';
+  notes.textContent = c.notes || '';
+  notes.title = 'Click to add a note';
+  notes.addEventListener('click', e => {
+    e.stopPropagation();
+    el.setAttribute('draggable', 'false');
+    notes.contentEditable = 'true';
+    notes.focus();
+  });
+  notes.addEventListener('blur', () => {
+    notes.contentEditable = 'false';
+    el.setAttribute('draggable', 'true');
+    c.notes = notes.textContent.trim();
+    persist();
+  });
+  notes.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { notes.textContent = c.notes; notes.blur(); }
+  });
+  el.appendChild(notes);
+
+  // sub-items section
+  const subsSection = document.createElement('div');
+  subsSection.className = 'card-subs-section';
+
+  const toggle = document.createElement('div');
+  toggle.className = 'card-toggle';
+  const arrowEl = document.createElement('span');
+  arrowEl.innerHTML = ICON_ARROW;
+  arrowEl.querySelector('svg').classList.add('toggle-arrow');
+  toggle.appendChild(arrowEl.querySelector('svg'));
+  const toggleText = document.createElement('span');
+  toggle.appendChild(toggleText);
+
+  const subList = document.createElement('div');
+  subList.className = 'card-subitems';
+
+  function rebuildSubList() {
+    subList.innerHTML = '';
+    c.subs.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'subitem-row';
+
+      const text = document.createElement('div');
+      text.className = 'subitem-text';
+      text.textContent = s;
+      text.title = 'Double-click to edit';
+      text.addEventListener('dblclick', ev => {
+        ev.stopPropagation();
+        el.setAttribute('draggable', 'false');
+        text.contentEditable = 'true';
+        text.focus();
+        const r = document.createRange(); r.selectNodeContents(text);
+        window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+      });
+      text.addEventListener('blur', () => {
+        text.contentEditable = 'false';
+        el.setAttribute('draggable', 'true');
+        const val = text.textContent.trim();
+        if (val) { c.subs[i] = val; } else { c.subs.splice(i, 1); rebuildSubList(); }
+        persist();
+      });
+      text.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); text.blur(); }
+        if (e.key === 'Escape') { text.textContent = c.subs[i]; text.blur(); }
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-sub-delete';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Remove sub-item';
+      delBtn.addEventListener('click', ev => {
+        ev.stopPropagation();
+        c.subs.splice(i, 1);
+        persist();
+        rebuildSubList();
+        refreshToggleText();
+      });
+
+      row.appendChild(text);
+      row.appendChild(delBtn);
+      subList.appendChild(row);
+    });
+
+    // add new sub-item row
+    const addRow = document.createElement('div');
+    addRow.className = 'add-subitem-row';
+    const inp = document.createElement('input');
+    inp.className = 'add-subitem-input';
+    inp.placeholder = 'Add sub-item…';
+    inp.type = 'text';
+    inp.addEventListener('click', e => e.stopPropagation());
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = inp.value.trim();
+        if (val) { c.subs.push(val); persist(); rebuildSubList(); refreshToggleText(); inp.value = ''; }
+      }
+      if (e.key === 'Escape') { inp.value = ''; inp.blur(); }
+    });
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-sub-add';
+    addBtn.textContent = 'Add';
+    addBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const val = inp.value.trim();
+      if (val) { c.subs.push(val); persist(); rebuildSubList(); refreshToggleText(); inp.value = ''; }
+    });
+    addRow.appendChild(inp);
+    addRow.appendChild(addBtn);
+    subList.appendChild(addRow);
+  }
+
+  function refreshToggleText() {
+    const n = c.subs.length;
+    toggleText.textContent = n > 0 ? n + ' sub-item' + (n !== 1 ? 's' : '') : 'Add sub-items';
+  }
+
+  toggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = subList.classList.toggle('open');
+    toggle.querySelector('.toggle-arrow').style.transform = open ? 'rotate(180deg)' : '';
+    if (open) rebuildSubList();
+  });
+
+  rebuildSubList();
+  refreshToggleText();
+  subsSection.appendChild(toggle);
+  subsSection.appendChild(subList);
+  el.appendChild(subsSection);
+
+  // drag
+  el.addEventListener('dragstart', onDragStart);
+  el.addEventListener('dragend', onDragEnd);
+
+  return el;
+}
+
+// ── Delete card ───────────────────────────────────────────────────────────────
+function deleteCard(cardId) {
+  const c = boardState.cards[cardId];
+  const day = boardState.days.find(d => d.id === c.dayId);
+  day.cardIds = day.cardIds.filter(id => id !== cardId);
+  delete boardState.cards[cardId];
+  persist();
+  render();
+}
+
+// ── Column builder ────────────────────────────────────────────────────────────
+function buildColumn(dayState) {
+  const col = document.createElement('div');
+  col.className = 'col';
+  col.dataset.dayId = dayState.id;
+
+  // header
+  const hdr = document.createElement('div');
+  hdr.className = 'col-header ' + (dayState.locClass || 'unset');
+
+  // editable date
+  const dateEl = document.createElement('div');
+  dateEl.className = 'col-date';
+  const dateText = document.createElement('span');
+  dateText.textContent = dayState.date;
+  dateText.title = 'Double-click to edit';
+  dateText.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    dateText.contentEditable = 'true';
+    dateText.focus();
+    const r = document.createRange(); r.selectNodeContents(dateText);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+  });
+  dateText.addEventListener('blur', () => {
+    dateText.contentEditable = 'false';
+    const val = dateText.textContent.trim();
+    if (val) { dayState.date = val; dateText.textContent = val; }
+    else { dateText.textContent = dayState.date; }
+    persist();
+  });
+  dateText.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); dateText.blur(); }
+    if (e.key === 'Escape') { dateText.textContent = dayState.date; dateText.blur(); }
+  });
+  const pencilIcon = document.createElement('span');
+  pencilIcon.className = 'edit-icon';
+  pencilIcon.innerHTML = ICON_PENCIL;
+  dateEl.appendChild(dateText);
+  dateEl.appendChild(pencilIcon);
+
+  // editable location (click cycles through options)
+  const locEl = document.createElement('div');
+  locEl.className = 'col-loc';
+  const LOC_OPTS = ['Office', 'WFH', 'The Scalpel', ''];
+  locEl.textContent = dayState.loc || 'TBC — click to change';
+  locEl.title = 'Click to change location';
+  locEl.addEventListener('click', () => {
+    const idx = LOC_OPTS.indexOf(dayState.loc);
+    dayState.loc = LOC_OPTS[(idx + 1) % LOC_OPTS.length];
+    dayState.locClass = LOC_CLASS[dayState.loc];
+    persist();
+    // re-render just this column header class + loc text
+    hdr.className = 'col-header ' + (dayState.locClass || 'unset');
+    locEl.textContent = dayState.loc || 'TBC — click to change';
+  });
+
+  const countEl = document.createElement('div');
+  countEl.className = 'col-count';
+  countEl.id = 'count-' + dayState.id;
+  countEl.textContent = dayState.cardIds.length + ' session' + (dayState.cardIds.length !== 1 ? 's' : '');
+
+  hdr.appendChild(dateEl);
+  hdr.appendChild(locEl);
+  hdr.appendChild(countEl);
+  col.appendChild(hdr);
+
+  // drop zone
+  const zone = document.createElement('div');
+  zone.className = 'drop-zone';
+  zone.dataset.dayId = dayState.id;
+  dayState.cardIds.forEach(cid => zone.appendChild(buildCard(cid)));
+  zone.addEventListener('dragover', onDragOver);
+  zone.addEventListener('dragleave', onDragLeave);
+  zone.addEventListener('drop', onDrop);
+  col.appendChild(zone);
+
+  // add card button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-card';
+  addBtn.innerHTML = ICON_PLUS + ' Add session';
+  addBtn.addEventListener('click', () => addCard(dayState.id));
+  col.appendChild(addBtn);
+
+  // complete-all button
+  const completeAllBtn = document.createElement('button');
+  completeAllBtn.className = 'btn-complete-all';
+  completeAllBtn.innerHTML = ICON_CHECK + ' Mark all done';
+  completeAllBtn.addEventListener('click', () => {
+    dayState.cardIds.forEach(cid => { boardState.cards[cid].status = 'done'; });
+    persist();
+    render();
+  });
+  col.appendChild(completeAllBtn);
+
+  return col;
+}
+
+// ── Add card ──────────────────────────────────────────────────────────────────
+function addCard(dayId) {
+  const id = uid();
+  boardState.cards[id] = { title: 'New Session', subs: [], notes: '', status: 'ns', dayId };
+  boardState.days.find(d => d.id === dayId).cardIds.push(id);
+  persist();
+  render();
+  // auto-focus the new card's title
+  setTimeout(() => {
+    const el = document.querySelector(`[data-card-id="${id}"] .card-title`);
+    if (el) {
+      el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    }
+  }, 50);
+}
+
+// ── Add day ───────────────────────────────────────────────────────────────────
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('modal-add-day').classList.remove('open');
+});
+document.getElementById('modal-confirm').addEventListener('click', () => {
+  const date = document.getElementById('modal-date-input').value.trim();
+  const loc   = document.getElementById('modal-loc-select').value;
+  if (!date) {
+    document.getElementById('modal-date-input').style.borderColor = 'var(--danger)';
+    document.getElementById('modal-date-input').focus();
+    return;
+  }
+  document.getElementById('modal-date-input').style.borderColor = '';
+  const id = dayUid();
+  boardState.days.push({ id, date, loc, locClass: LOC_CLASS[loc] || 'unset', cardIds: [] });
+  persist();
+  render();
+  document.getElementById('modal-add-day').classList.remove('open');
+  document.getElementById('modal-date-input').value = '';
+});
+document.getElementById('modal-add-day').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+});
+document.getElementById('modal-date-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('modal-confirm').click();
+});
+
+// ── Week boundaries (by day id) ───────────────────────────────────────────────
+const WEEK_STARTS = new Set(['w8', 'm13', 'm20']);
+const WEEK_LABELS = { w8: 'Week 1', m13: 'Week 2', m20: 'Week 3' };
+
+// Parse "Wed 8 Jul" → Date in 2026 for past-day detection
+function parseDayDate(dateStr) {
+  // Strip note suffix like " — Summer Party"
+  const clean = dateStr.split('—')[0].trim();
+  const match = clean.match(/(\d+)\s+(\w+)/);
+  if (!match) return null;
+  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const d = parseInt(match[1], 10);
+  const m = months[match[2]];
+  if (m === undefined) return null;
+  return new Date(2026, m, d);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  boardState.days.forEach((d, i) => {
+    // Week divider before first day of each week
+    if (WEEK_STARTS.has(d.id) || (i === 0 && WEEK_STARTS.has(d.id))) {
+      if (WEEK_LABELS[d.id]) {
+        const div = document.createElement('div');
+        div.className = 'week-divider';
+        const line = document.createElement('div');
+        line.className = 'week-divider-line';
+        const lbl = document.createElement('div');
+        lbl.className = 'week-divider-label';
+        lbl.textContent = WEEK_LABELS[d.id];
+        div.appendChild(line);
+        div.appendChild(lbl);
+        board.appendChild(div);
+      }
+    }
+
+    const col = buildColumn(d);
+
+    // Past-day greying + today highlight
+    const dayDate = parseDayDate(d.date);
+    if (dayDate) {
+      const diff = today - dayDate;
+      if (diff === 0) {
+        col.classList.add('today');
+      } else if (diff > 0) {
+        col.classList.add('past');
+      }
+    }
+
+    board.appendChild(col);
+  });
+
+  // add day button at end
+  const addDayCol = document.createElement('div');
+  addDayCol.className = 'col-add-day';
+  const addDayBtn = document.createElement('button');
+  addDayBtn.className = 'btn-add-day';
+  addDayBtn.innerHTML = ICON_PLUS + ' Add day';
+  addDayBtn.addEventListener('click', () => {
+    document.getElementById('modal-add-day').classList.add('open');
+    document.getElementById('modal-date-input').focus();
+  });
+  addDayCol.appendChild(addDayBtn);
+  board.appendChild(addDayCol);
+
+  updateProgress();
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+let confettiFired = false;
+
+function updateProgress() {
+  const all  = Object.values(boardState.cards);
+  const done = all.filter(c => c.status === 'done').length;
+  const pct  = all.length ? Math.round((done / all.length) * 100) : 0;
+  document.getElementById('global-progress').textContent = done + ' / ' + all.length + ' Done (' + pct + '%)';
+  boardState.days.forEach(d => {
+    const el = document.getElementById('count-' + d.id);
+    if (el) el.textContent = d.cardIds.length + ' session' + (d.cardIds.length !== 1 ? 's' : '');
+  });
+  if (pct === 100 && all.length > 0 && !confettiFired) {
+    confettiFired = true;
+    launchConfetti();
+  }
+  if (pct < 100) confettiFired = false;
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const COLOURS = ['#00195A','#1D4ED8','#16A34A','#F59E0B','#E11D48','#7C3AED','#0EA5E9'];
+  const COUNT = 120;
+  const pieces = Array.from({ length: COUNT }, () => ({
+    x:    Math.random() * canvas.width,
+    y:    -10 - Math.random() * 120,
+    r:    4 + Math.random() * 5,
+    d:    2 + Math.random() * 3,       // drift
+    color: COLOURS[Math.floor(Math.random() * COLOURS.length)],
+    tilt: Math.random() * 10 - 5,
+    tiltSpeed: 0.08 + Math.random() * 0.1,
+    angle: 0,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+  }));
+
+  let frame;
+  let elapsed = 0;
+  const DURATION = 3000; // ms
+
+  function draw(ts) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    elapsed += 16;
+    const fade = Math.max(0, 1 - elapsed / DURATION);
+
+    pieces.forEach(p => {
+      p.angle  += p.tiltSpeed;
+      p.y      += p.d + 1.5;
+      p.x      += Math.sin(p.angle) * 1.2;
+      p.tilt    = Math.sin(p.angle) * 12;
+
+      ctx.globalAlpha = fade * 0.9;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      if (p.shape === 'rect') {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.tilt * Math.PI / 180);
+        ctx.fillRect(-p.r / 2, -p.r / 2, p.r * 1.6, p.r * 0.7);
+        ctx.restore();
+      } else {
+        ctx.arc(p.x, p.y, p.r / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    ctx.globalAlpha = 1;
+
+    if (elapsed < DURATION) {
+      frame = requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  frame = requestAnimationFrame(draw);
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+let dragCardId = null;
+
+function onDragStart(e) {
+  dragCardId = e.currentTarget.dataset.cardId;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragCardId);
+  const ghost = document.getElementById('drag-ghost');
+  e.dataTransfer.setDragImage(ghost, 0, 0);
+}
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+}
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  const zone = e.currentTarget;
+  zone.classList.remove('drag-over');
+  const targetDayId = zone.dataset.dayId;
+  if (!dragCardId || !targetDayId) return;
+
+  const card = boardState.cards[dragCardId];
+  if (!card) return;
+  const srcDay = boardState.days.find(d => d.id === card.dayId);
+  if (!srcDay) return;
+  srcDay.cardIds = srcDay.cardIds.filter(id => id !== dragCardId);
+
+  const tgtDay = boardState.days.find(d => d.id === targetDayId);
+  if (!tgtDay) return;
+  const afterId = getDragAfterElement(zone, e.clientY);
+  if (!afterId) tgtDay.cardIds.push(dragCardId);
+  else tgtDay.cardIds.splice(tgtDay.cardIds.indexOf(afterId), 0, dragCardId);
+
+  card.dayId = targetDayId;
+  persist();
+  render();
+}
+function getDragAfterElement(zone, y) {
+  const cards = [...zone.querySelectorAll('.card:not(.dragging)')];
+  let closest = null, closestDist = Infinity;
+  cards.forEach(c => {
+    const box = c.getBoundingClientRect();
+    const dist = y - (box.top + box.height / 2);
+    if (dist < 0 && Math.abs(dist) < closestDist) { closestDist = Math.abs(dist); closest = c; }
+  });
+  return closest ? closest.dataset.cardId : null;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+initState();
+render();
+</script>
+</body>
+</html>
