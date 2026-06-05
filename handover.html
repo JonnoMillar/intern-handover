@@ -431,6 +431,10 @@
     margin-bottom: 3px;
     padding-left: 8px;
     border-left: 2px solid var(--border);
+    transition: border-color 200ms;
+  }
+  .subitem-row.subitem-row-done {
+    border-left-color: var(--done);
   }
   .subitem-text {
     font-size: 11px;
@@ -1060,6 +1064,7 @@ function buildCard(cardId) {
       text.className = 'subitem-text' + (c.subsDone[i] ? ' subitem-done' : '');
       text.textContent = s;
       text.title = 'Click to tick off · Double-click to edit';
+      if (c.subsDone[i]) row.classList.add('subitem-row-done');
 
       // single click = toggle strikethrough
       text.addEventListener('click', ev => {
@@ -1067,6 +1072,7 @@ function buildCard(cardId) {
         if (text.contentEditable === 'true') return;
         c.subsDone[i] = !c.subsDone[i];
         text.classList.toggle('subitem-done', c.subsDone[i]);
+        row.classList.toggle('subitem-row-done', c.subsDone[i]);
         persist();
         refreshToggleText();
       });
