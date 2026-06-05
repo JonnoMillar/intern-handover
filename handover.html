@@ -437,12 +437,17 @@
     color: var(--muted);
     line-height: 1.4;
     flex: 1;
-    cursor: text;
+    cursor: pointer;
     border-radius: 2px;
     padding: 1px 3px;
     word-break: break-word;
+    transition: color 150ms, text-decoration 150ms;
   }
   .subitem-text:hover { background: var(--navy-lt); }
+  .subitem-text.subitem-done {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
   .btn-sub-delete {
     opacity: 0;
     width: 16px; height: 16px;
@@ -924,10 +929,24 @@ const ICON_CHECK  = svgIcon('<path d="M2 8l4 4 8-8" stroke="currentColor" stroke
 // ── Card builder ──────────────────────────────────────────────────────────────
 function buildCard(cardId) {
   const c = boardState.cards[cardId];
+  if (!c.subsDone) c.subsDone = {};
   const el = document.createElement('div');
   el.className = 'card' + (c.status === 'done' ? ' done-card' : c.status === 'prog' ? ' prog-card' : '');
   el.setAttribute('draggable', 'true');
   el.dataset.cardId = cardId;
+
+  // Click anywhere on card body cycles status
+  el.addEventListener('click', e => {
+    // don't cycle if clicking interactive children
+    if (e.target.closest('.card-actions, .card-title, .card-notes, .card-subs-section, .status-badge')) return;
+    c.status = STATUS_CYCLE[c.status];
+    persist();
+    el.className = 'card' + (c.status === 'done' ? ' done-card' : c.status === 'prog' ? ' prog-card' : '');
+    badge.className = 'status-badge ' + STATUS_CLASS[c.status];
+    badge.textContent = STATUS_LABEL[c.status];
+    updateProgress();
+  });
+  el.style.cursor = 'pointer';
 
   // actions (delete)
   const actions = document.createElement('div');
@@ -952,6 +971,7 @@ function buildCard(cardId) {
   const badge = document.createElement('span');
   badge.className = 'status-badge ' + STATUS_CLASS[c.status];
   badge.textContent = STATUS_LABEL[c.status];
+  badge.title = 'Click to cycle status';
   badge.addEventListener('click', e => {
     e.stopPropagation();
     c.status = STATUS_CYCLE[c.status];
@@ -1034,9 +1054,20 @@ function buildCard(cardId) {
       row.className = 'subitem-row';
 
       const text = document.createElement('div');
-      text.className = 'subitem-text';
+      text.className = 'subitem-text' + (c.subsDone[i] ? ' subitem-done' : '');
       text.textContent = s;
-      text.title = 'Double-click to edit';
+      text.title = 'Click to tick off · Double-click to edit';
+
+      // single click = toggle strikethrough
+      text.addEventListener('click', ev => {
+        ev.stopPropagation();
+        if (text.contentEditable === 'true') return;
+        c.subsDone[i] = !c.subsDone[i];
+        text.classList.toggle('subitem-done', c.subsDone[i]);
+        persist();
+        refreshToggleText();
+      });
+
       text.addEventListener('dblclick', ev => {
         ev.stopPropagation();
         el.setAttribute('draggable', 'false');
@@ -1049,7 +1080,7 @@ function buildCard(cardId) {
         text.contentEditable = 'false';
         el.setAttribute('draggable', 'true');
         const val = text.textContent.trim();
-        if (val) { c.subs[i] = val; } else { c.subs.splice(i, 1); rebuildSubList(); }
+        if (val) { c.subs[i] = val; } else { c.subs.splice(i, 1); delete c.subsDone[i]; rebuildSubList(); }
         persist();
       });
       text.addEventListener('keydown', e => {
@@ -1105,7 +1136,14 @@ function buildCard(cardId) {
 
   function refreshToggleText() {
     const n = c.subs.length;
-    toggleText.textContent = n > 0 ? n + ' sub-item' + (n !== 1 ? 's' : '') : 'Add sub-items';
+    const ticked = Object.values(c.subsDone).filter(Boolean).length;
+    if (n === 0) {
+      toggleText.textContent = 'Add sub-items';
+    } else if (ticked > 0) {
+      toggleText.textContent = ticked + '/' + n + ' done';
+    } else {
+      toggleText.textContent = n + ' sub-item' + (n !== 1 ? 's' : '');
+    }
   }
 
   toggle.addEventListener('click', e => {
