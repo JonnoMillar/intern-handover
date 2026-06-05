@@ -831,24 +831,24 @@ function initState() {
   const saved = loadState();
   if (saved && saved.cards && saved.days) {
     boardState = saved;
-    // Hide setup modal if names already set
     document.getElementById('modal-setup').classList.remove('open');
     renderHeaderNames();
     return;
   }
-  // First visit — show setup modal, don't render board yet
+  // First visit — show setup modal
   document.getElementById('modal-setup').classList.add('open');
   document.getElementById('setup-from').focus();
 
   const cards = {};
   const days = SEED_DAYS.map(day => {
     const cardIds = day.sessions.map(s => {
-      cards[s.id] = { title: s.title, subs: s.subs.slice(), notes: s.notes || '', status: 'ns', dayId: day.id };
+      cards[s.id] = { title: s.title, subs: s.subs.slice(), notes: s.notes || '', status: 'ns', dayId: day.id, subsDone: {} };
       return s.id;
     });
     return { id: day.id, date: day.date, loc: day.loc, locClass: day.locClass, cardIds };
   });
   boardState = { days, cards, names: { from: '', to: '', period: '' } };
+  persist();
 }
 
 function renderHeaderNames() {
@@ -1531,8 +1531,8 @@ function getDragAfterElement(zone, y) {
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 initState();
-// Only render immediately if setup already completed (returning visitor)
-if (boardState.names && (boardState.names.from || boardState.names.to)) {
+// Render if we have saved state (returning visitor), setup modal handles first-timers
+if (boardState.cards && boardState.days) {
   render();
 }
 </script>
